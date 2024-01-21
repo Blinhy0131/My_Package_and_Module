@@ -12,7 +12,7 @@ you just need to input 4 thing
 other parameter have the default value
 default value please check Function Input Explanation below
 
-Github link: https://github.com/Blinhy0131/My_Package_and_Module/py_module
+Github link: https://github.com/Blinhy0131/My_Package_and_Module/tree/main/py_module
 '''
 ############################################################################
 import torch
