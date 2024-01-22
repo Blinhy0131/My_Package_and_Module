@@ -1,8 +1,8 @@
 ############################################################################
 '''
-Version 1.1  
-Upgrade date: 2024/01/21
-Add more option for the "def bpnn_model"
+Version 1.1.1
+Upgrade date: 2024/01/22
+fix if the predict value is nan, the mse will return error
 
 This is a bpnn function using pytorch built by github: Blinhy0131
 you just need to input 4 thing 
@@ -12,7 +12,7 @@ you just need to input 4 thing
 other parameter have the default value
 default value please check Function Input Explanation below
 
-Github link: https://github.com/Blinhy0131/My_Package_and_Module/tree/main/py_module
+Github link: https://github.com/Blinhy0131/My_Package_and_Module/py_module
 '''
 ############################################################################
 import torch
@@ -20,6 +20,8 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from sklearn.metrics import mean_squared_error
+import math
+
 
 #build model
 class BPNN_network(nn.Module):
@@ -168,6 +170,12 @@ def bpnn_model(input_size,
 
     y_p = y_p.detach().cpu().numpy()
     
+    # if the value nan than mse will go wrong
+    # so if the value is nan than return inf
+    # it means mse is infinitely 
+    if np.isnan(y_p[1]):
+        return float('inf')
+    
     mse=mean_squared_error(y_p, test_target)
 
     return mse
@@ -176,16 +184,17 @@ def bpnn_model(input_size,
 #testing model function is testing the parameter
 
 def testing_model():
-    x = np.arange(0, 2 , 1/1e3)
-    y = np.cos(x)*np.sin(2*x)
+    x = np.arange(0, 10 , 1/1e3)
+    y = np.cos(x)*np.sin(2*x)*np.exp(np.cos(6*x))
     mse=bpnn_model(input_data=x,
             target_data=y,
             input_size=1,
             output_size=1,
-            num_hidden_layers=2,
-            hidden_size=[10,5],
-            activations=['ReLU','Tanh'],
-            opt_type="SGD"
+            num_hidden_layers=1,
+            hidden_size=67,
+            activations="ELU",
+            opt_type="SGD",
+            learning_rate=0.071
             )
     
     print(mse)
