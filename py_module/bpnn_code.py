@@ -94,7 +94,7 @@ callback_each_epoch=True  ->if true will print the training loss at each epoch
 device='cpu'              -> what device are gonna use to train.  please check the cuda
 
 
-***  NOTE: if hidden size is a list, than the activations MUST BE LIST TO
+***  NOTE: if hidden size is a list, than the activations MUST BE LIST TOO
 '''
 
 def bpnn_model(input_size, 
@@ -120,7 +120,6 @@ def bpnn_model(input_size,
     # define loss and opt
     optimizer_args = {"lr":learning_rate, "weight_decay": weight_decay}
     opt  = eval(f"optim.{opt_type}")(model.parameters(), **optimizer_args)
-    optim.Adam(model.parameters(), lr=learning_rate)
 
     #define loss
     loss=nn.MSELoss(reduction='mean')
@@ -183,17 +182,19 @@ def bpnn_model(input_size,
 #testing model function is testing the parameter
 
 def testing_model():
+    
     x = np.arange(0, 10 , 1/1e3)
     y = np.cos(x)*np.sin(2*x)*np.exp(np.cos(6*x))
+
     mse=bpnn_model(input_data=x,
             target_data=y,
             input_size=1,
             output_size=1,
-            num_hidden_layers=1,
-            hidden_size=67,
-            activations="ELU",
-            opt_type="SGD",
-            learning_rate=0.071
+            num_hidden_layers=10,
+            hidden_size=20,
+            activations="Tanh",
+            opt_type="RMSprop",
+            learning_rate=0.001
             )
     
     print(mse)
