@@ -1,8 +1,9 @@
 ############################################################################
 '''
-Version 1.1.1
-Upgrade date: 2024/01/22
-fix if the predict value is nan, the mse will return error
+Version 1.2
+Upgrade date: 2024/01/24
+change the activation and the hidden layer size input need to be the same type
+
 
 This is a bpnn function using pytorch built by github: Blinhy0131
 you just need to input 4 thing 
@@ -26,40 +27,19 @@ from sklearn.metrics import mean_squared_error
 class BPNN_network(nn.Module):
     def __init__(self, input_size, output_size, num_hidden_layers, hidden_size,act_function):
         super(BPNN_network, self).__init__()
-        if type(hidden_size)==list:
-            # if each hidden features are different
 
-            # input layer
-            self.input_layer = nn.Linear(in_features=input_size, out_features=hidden_size[0])
-            self.hidden_layers = nn.ModuleList()
-            self.act=eval(f"nn.{act_function[0]}")()
+        # input layer
+        self.input_layer = nn.Linear(in_features=input_size, out_features=hidden_size[0])
+        self.hidden_layers = nn.ModuleList()
+        self.act=eval(f"nn.{act_function[0]}")()
 
-            # hidden layer
-            for i in range(num_hidden_layers-1):
-                self.hidden_layers.append(nn.Linear(in_features=hidden_size[i], out_features=hidden_size[i+1]))
-                self.hidden_layers.append(eval(f"nn.{act_function[i+1]}")())  #act function
+        # hidden layer
+        for i in range(num_hidden_layers-1):
+            self.hidden_layers.append(nn.Linear(in_features=hidden_size[i], out_features=hidden_size[i+1]))
+            self.hidden_layers.append(eval(f"nn.{act_function[i+1]}")())  #act function
 
-            # output layer
-            self.output_layer = nn.Linear(in_features=hidden_size[-1], out_features=output_size)
-
-        else:
-            #else they are the same
-
-            # input layer
-            self.input_layer = nn.Linear(in_features=input_size, out_features=hidden_size)
-
-            #input layer activation
-            self.act=eval(f"nn.{act_function}")()
-
-
-            self.hidden_layers = nn.ModuleList()
-            # hidden layer
-            for _ in range(num_hidden_layers-1):
-                self.hidden_layers.append(nn.Linear(in_features=hidden_size, out_features=hidden_size))
-                self.hidden_layers.append(eval(f"nn.{act_function}")())  #act function
-
-            # output layer
-            self.output_layer = nn.Linear(in_features=hidden_size, out_features=output_size)
+        # output layer
+        self.output_layer = nn.Linear(in_features=hidden_size[-1], out_features=output_size)
 
 
 
@@ -85,16 +65,16 @@ test_data=None            -> after training the data gonna test the model accura
 test_target=None          -> after training the data gonna compare with model output, if none =input_data
 save_model=False          -> if true, then save the model after training, file name will include the date and the time
 num_hidden_layers=1       -> how many hidden layer in the network
-hidden_size=10            -> *how many neurons at the hidden layer. if input is a list, than it means each layer's neurons"
-activations               -> *the network activation function , if hidden size is a list, here must input a list too, control each layer's activation function
+hidden_size=10            -> how many neurons at the hidden layer. if input is a list, than it means each layer's neurons"
+activations               -> the network activation function . if input is a list, than it means each layer's activation"
 opt_type="Adam"           -> the optimizer type are gonna use at the model 
+loss_type="MSELoss"       -> loss type of the model 
 learning_rate=0.001       -> the optimizer learning rate
 weight_decay=0            -> the optimizer weight decay
-callback_each_epoch=True  ->if true will print the training loss at each epoch 
+callback_each_epoch=True  -> if true will print the training loss at each epoch 
 device='cpu'              -> what device are gonna use to train.  please check the cuda
 
 
-***  NOTE: if hidden size is a list, than the activations MUST BE LIST TOO
 '''
 
 def bpnn_model(input_size, 
@@ -108,10 +88,21 @@ def bpnn_model(input_size,
          hidden_size=10,
          activations="ReLU",
          opt_type="Adam",
+         loss_type="MSELoss",
          learning_rate=0.001,
          weight_decay=0,
          callback_each_epoch=True,
          device='cpu'):
+    
+    # hidden size/activations if are not list than change 2 list
+    if type(hidden_size)!=list:
+        hidden_size=[hidden_size]*num_hidden_layers
+        
+    if type(activations) != list:
+        activations = [activations]*num_hidden_layers
+        
+    if type(loss_type) == None:
+        loss_dic={1:'MSELoss'}
 
     # Build model
     model = BPNN_network(input_size, output_size, num_hidden_layers, hidden_size, activations)
@@ -122,7 +113,7 @@ def bpnn_model(input_size,
     opt  = eval(f"optim.{opt_type}")(model.parameters(), **optimizer_args)
 
     #define loss
-    loss=nn.MSELoss(reduction='mean')
+    loss=eval(f"nn.{loss_type}")()
 
     # data process
     x_tensor = torch.tensor(input_data, dtype=torch.float32).view(-1,input_size).to(device)
@@ -190,9 +181,9 @@ def testing_model():
             target_data=y,
             input_size=1,
             output_size=1,
-            num_hidden_layers=10,
-            hidden_size=20,
-            activations="Tanh",
+            num_hidden_layers=4,
+            hidden_size=10,
+            activations=["Tanh","ReLU","Tanh","ReLU"],
             opt_type="RMSprop",
             learning_rate=0.001
             )
