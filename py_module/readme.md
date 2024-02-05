@@ -1,4 +1,13 @@
 #bpnn code
+
+Version 1.2.1
+
+Upgrade date: 2024/02/05
+
+Now is avaliable to set max epoch for training
+
+--------------
+
 Version 1.2
 
 Upgrade date: 2024/01/24
