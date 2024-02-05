@@ -1,8 +1,8 @@
 ############################################################################
 '''
-Version 1.2
+Version 1.2.1
 Upgrade date: 2024/01/24
-change the activation and the hidden layer size input need to be the same type
+Now is avaliable to set max epoch for training
 
 
 This is a bpnn function using pytorch built by github: Blinhy0131
@@ -84,6 +84,7 @@ def bpnn_model(input_size,
          test_data=None,
          test_target=None,
          save_model=False,
+         max_epochs = 200,
          num_hidden_layers=1,
          hidden_size=10,
          activations="ReLU",
@@ -120,7 +121,6 @@ def bpnn_model(input_size,
     y_tensor = torch.tensor(target_data, dtype=torch.float32).view(-1,output_size).to(device)
 
     # train model
-    max_epochs = 200
     for epoch in range(max_epochs):
         opt.zero_grad()
         # Forward pass
