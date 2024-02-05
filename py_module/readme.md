@@ -1,4 +1,11 @@
 #bpnn code
+Version 1.2
+
+Upgrade date: 2024/01/24
+
+change the activation and the hidden layer size input need to be the same type
+
+--------------
 
 ##Version 1.1.1
 
